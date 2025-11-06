@@ -1,10 +1,15 @@
 package com.veilguard.vpn.data.model
 
-data class VpnServer(
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Server(
     val id: String,
     val name: String,
-    val ip_address: String,
+    val ipAddress: String,
     val location: String,
     val status: String,
-    val created_at: String
-)
+    val publicKey: String? = null,
+    val createdAt: String? = null
+) : Parcelable

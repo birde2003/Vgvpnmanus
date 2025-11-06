@@ -4,63 +4,107 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import com.veilguard.vpn.utils.Constants
 
 class PreferencesManager(context: Context) {
     private val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
     
-    private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
+    private val sharedPreferences: SharedPreferences = EncryptedSharedPreferences.create(
         context,
-        Constants.PREFS_NAME,
+        "veilguard_prefs",
         masterKey,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
     
     fun saveAuthToken(token: String) {
-        prefs.edit().putString(Constants.KEY_AUTH_TOKEN, token).apply()
+        sharedPreferences.edit().putString("auth_token", token).apply()
     }
     
     fun getAuthToken(): String? {
-        return prefs.getString(Constants.KEY_AUTH_TOKEN, null)
+        return sharedPreferences.getString("auth_token", null)
     }
     
     fun saveUserEmail(email: String) {
-        prefs.edit().putString(Constants.KEY_USER_EMAIL, email).apply()
+        sharedPreferences.edit().putString("user_email", email).apply()
     }
     
     fun getUserEmail(): String? {
-        return prefs.getString(Constants.KEY_USER_EMAIL, null)
+        return sharedPreferences.getString("user_email", null)
     }
     
     fun getDeviceId(): String {
-        var deviceId = prefs.getString(Constants.KEY_DEVICE_ID, null)
+        var deviceId = sharedPreferences.getString("device_id", null)
         if (deviceId == null) {
             deviceId = java.util.UUID.randomUUID().toString()
-            prefs.edit().putString(Constants.KEY_DEVICE_ID, deviceId).apply()
+            sharedPreferences.edit().putString("device_id", deviceId).apply()
         }
         return deviceId
     }
     
-    fun setOnboardingComplete(complete: Boolean) {
-        prefs.edit().putBoolean(Constants.KEY_ONBOARDING_COMPLETE, complete).apply()
+    fun setOnboardingCompleted(completed: Boolean) {
+        sharedPreferences.edit().putBoolean("onboarding_completed", completed).apply()
     }
     
-    fun isOnboardingComplete(): Boolean {
-        return prefs.getBoolean(Constants.KEY_ONBOARDING_COMPLETE, false)
+    fun isOnboardingCompleted(): Boolean {
+        return sharedPreferences.getBoolean("onboarding_completed", false)
     }
     
     fun setTermsAccepted(accepted: Boolean) {
-        prefs.edit().putBoolean(Constants.KEY_TERMS_ACCEPTED, accepted).apply()
+        sharedPreferences.edit().putBoolean("terms_accepted", accepted).apply()
     }
     
-    fun areTermsAccepted(): Boolean {
-        return prefs.getBoolean(Constants.KEY_TERMS_ACCEPTED, false)
+    fun isTermsAccepted(): Boolean {
+        return sharedPreferences.getBoolean("terms_accepted", false)
     }
     
-    fun clearAll() {
-        prefs.edit().clear().apply()
+    fun setSelectedServer(serverId: String, serverName: String, serverIp: String) {
+        sharedPreferences.edit()
+            .putString("selected_server_id", serverId)
+            .putString("selected_server_name", serverName)
+            .putString("selected_server_ip", serverIp)
+            .apply()
+    }
+    
+    fun getSelectedServerId(): String? {
+        return sharedPreferences.getString("selected_server_id", null)
+    }
+    
+    fun getSelectedServerName(): String? {
+        return sharedPreferences.getString("selected_server_name", null)
+    }
+    
+    fun getSelectedServerIp(): String? {
+        return sharedPreferences.getString("selected_server_ip", null)
+    }
+    
+    // Settings
+    fun setAutoConnect(enabled: Boolean) {
+        sharedPreferences.edit().putBoolean("auto_connect", enabled).apply()
+    }
+    
+    fun isAutoConnectEnabled(): Boolean {
+        return sharedPreferences.getBoolean("auto_connect", false)
+    }
+    
+    fun setKillSwitch(enabled: Boolean) {
+        sharedPreferences.edit().putBoolean("kill_switch", enabled).apply()
+    }
+    
+    fun isKillSwitchEnabled(): Boolean {
+        return sharedPreferences.getBoolean("kill_switch", false)
+    }
+    
+    fun setDarkMode(enabled: Boolean) {
+        sharedPreferences.edit().putBoolean("dark_mode", enabled).apply()
+    }
+    
+    fun isDarkModeEnabled(): Boolean {
+        return sharedPreferences.getBoolean("dark_mode", false)
+    }
+    
+    fun clear() {
+        sharedPreferences.edit().clear().apply()
     }
 }
