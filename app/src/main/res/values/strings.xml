@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VEILGUARD</string>
+    
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Secure Your Digital Life</string>
+    
+    <!-- Onboarding -->
+    <string name="onboarding_title_1">Military-Grade Encryption</string>
+    <string name="onboarding_desc_1">Your data is protected with WireGuard protocol, the most secure VPN technology available.</string>
+    <string name="onboarding_title_2">Global Server Network</string>
+    <string name="onboarding_desc_2">Connect to high-speed servers across multiple locations worldwide.</string>
+    <string name="onboarding_title_3">7-Day Free Trial</string>
+    <string name="onboarding_desc_3">Experience premium VPN protection with no commitment. Cancel anytime.</string>
+    <string name="btn_next">Next</string>
+    <string name="btn_get_started">Get Started</string>
+    <string name="btn_skip">Skip</string>
+    
+    <!-- Legal -->
+    <string name="terms_title">Terms of Service</string>
+    <string name="privacy_title">Privacy Policy</string>
+    <string name="user_agreement_title">User Agreement</string>
+    <string name="accept_terms">I accept the Terms of Service and Privacy Policy</string>
+    <string name="btn_accept_continue">Accept &amp; Continue</string>
+    <string name="must_accept_terms">You must accept the terms to continue</string>
+    
+    <!-- Authentication -->
+    <string name="login_title">Welcome Back</string>
+    <string name="signup_title">Create Account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="btn_login">Sign In</string>
+    <string name="btn_signup">Sign Up</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="no_account">Don\'t have an account?</string>
+    <string name="have_account">Already have an account?</string>
+    <string name="sign_up_here">Sign Up</string>
+    <string name="sign_in_here">Sign In</string>
+    
+    <!-- Main Dashboard -->
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="btn_connect">Connect</string>
+    <string name="btn_disconnect">Disconnect</string>
+    <string name="select_server">Select Server</string>
+    <string name="current_server">Current Server</string>
+    <string name="connection_time">Connection Time</string>
+    <string name="data_uploaded">Uploaded</string>
+    <string name="data_downloaded">Downloaded</string>
+    
+    <!-- Trial -->
+    <string name="trial_active">Free Trial Active</string>
+    <string name="trial_expires">Trial expires in %d days</string>
+    <string name="trial_expired">Trial Expired</string>
+    <string name="start_trial">Start 7-Day Free Trial</string>
+    <string name="trial_started">Free trial activated!</string>
+    
+    <!-- Subscription -->
+    <string name="subscription_title">Choose Your Plan</string>
+    <string name="subscription_active">Subscription Active</string>
+    <string name="subscription_expires">Expires on %s</string>
+    <string name="plan_1_month">1 Month</string>
+    <string name="plan_3_months">3 Months</string>
+    <string name="plan_6_months">6 Months</string>
+    <string name="plan_12_months">12 Months</string>
+    <string name="price_per_month">$%s/month</string>
+    <string name="total_price">$%s total</string>
+    <string name="btn_subscribe">Subscribe Now</string>
+    <string name="best_value">Best Value</string>
+    <string name="most_popular">Most Popular</string>
+    
+    <!-- Servers -->
+    <string name="servers_title">Select Server</string>
+    <string name="server_location">Location</string>
+    <string name="server_latency">Latency: %d ms</string>
+    <string name="server_load">Load: %d%%</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="account">Account</string>
+    <string name="auto_connect">Auto Connect</string>
+    <string name="kill_switch">Kill Switch</string>
+    <string name="notifications">Notifications</string>
+    <string name="theme">Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System Default</string>
+    <string name="about">About</string>
+    <string name="version">Version %s</string>
+    <string name="logout">Logout</string>
+    
+    <!-- Errors -->
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_invalid_email">Please enter a valid email address</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+    <string name="error_short_password">Password must be at least 8 characters</string>
+    <string name="error_login_failed">Login failed. Please check your credentials.</string>
+    <string name="error_signup_failed">Signup failed. Please try again.</string>
+    <string name="error_vpn_permission">VPN permission is required</string>
+    <string name="error_connection_failed">Connection failed. Please try again.</string>
+    
+    <!-- Common -->
+    <string name="loading">Loading…</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="retry">Retry</string>
+    <string name="close">Close</string>
+</resources>
