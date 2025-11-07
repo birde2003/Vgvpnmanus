@@ -28,4 +28,15 @@ interface ApiService {
     
     @GET("api/v1/subscriptions/plans")
     suspend fun getSubscriptionPlans(): Response<List<SubscriptionPlan>>
+    
+    @POST("api/v1/subscriptions")
+    suspend fun createSubscription(
+        @Header("Authorization") token: String,
+        @Body request: Map<String, String>
+    ): Response<Subscription>
+    
+    @GET("api/v1/users/me")
+    suspend fun getCurrentUser(
+        @Header("Authorization") token: String
+    ): Response<User>
 }

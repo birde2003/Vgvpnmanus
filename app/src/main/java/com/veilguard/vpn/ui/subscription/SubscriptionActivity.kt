@@ -1,16 +1,10 @@
 package com.veilguard.vpn.ui.subscription
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
@@ -18,21 +12,11 @@ import com.veilguard.vpn.BuildConfig
 import com.veilguard.vpn.R
 import com.veilguard.vpn.api.RetrofitClient
 import com.veilguard.vpn.data.local.PreferencesManager
-import com.veilguard.vpn.data.model.SubscriptionPlan
 import kotlinx.coroutines.launch
 
 class SubscriptionActivity : AppCompatActivity() {
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: SubscriptionAdapter
     private lateinit var prefsManager: PreferencesManager
     private lateinit var paymentSheet: PaymentSheet
-    
-    private val plans = listOf(
-        SubscriptionPlan("1", "1 Month", 1, 9.99, "USD", emptyList(), "1 month", "price_1month"),
-        SubscriptionPlan("3", "3 Months", 3, 24.99, "USD", emptyList(), "3 months", "price_3months"),
-        SubscriptionPlan("6", "6 Months", 6, 44.99, "USD", emptyList(), "6 months", "price_6months"),
-        SubscriptionPlan("12", "12 Months", 12, 79.99, "USD", emptyList(), "12 months", "price_12months")
-    )
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,19 +28,28 @@ class SubscriptionActivity : AppCompatActivity() {
         PaymentConfiguration.init(this, BuildConfig.STRIPE_PUBLISHABLE_KEY)
         paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
         
-        setupRecyclerView()
+        setupPlanClickListeners()
     }
     
-    private fun setupRecyclerView() {
-        recyclerView = findViewById(R.id.subscriptionRecyclerView)
-        adapter = SubscriptionAdapter(plans) { plan ->
-            subscribeToPlan(plan)
+    private fun setupPlanClickListeners() {
+        findViewById<CardView>(R.id.plan1Month).setOnClickListener {
+            subscribeToPlan("1 month", 9.99)
         }
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
+        
+        findViewById<CardView>(R.id.plan3Months).setOnClickListener {
+            subscribeToPlan("3 months", 24.99)
+        }
+        
+        findViewById<CardView>(R.id.plan6Months).setOnClickListener {
+            subscribeToPlan("6 months", 44.99)
+        }
+        
+        findViewById<CardView>(R.id.plan12Months).setOnClickListener {
+            subscribeToPlan("12 months", 79.99)
+        }
     }
     
-    private fun subscribeToPlan(plan: SubscriptionPlan) {
+    private fun subscribeToPlan(plan: String, price: Double) {
         lifecycleScope.launch {
             try {
                 val token = prefsManager.getAuthToken() ?: return@launch
@@ -65,7 +58,7 @@ class SubscriptionActivity : AppCompatActivity() {
                 
                 val request = mapOf(
                     "email" to email,
-                    "plan" to plan.duration
+                    "plan" to plan
                 )
                 
                 val response = apiService.createSubscription("Bearer $token", request)

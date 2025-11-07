@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.veilguard.vpn.R
 import com.veilguard.vpn.data.local.PreferencesManager
-import com.veilguard.vpn.ui.auth.LoginActivity
+import com.veilguard.vpn.ui.auth.AuthActivity
 import com.veilguard.vpn.ui.legal.LegalActivity
 import com.veilguard.vpn.ui.main.MainActivity
 import kotlinx.coroutines.delay
@@ -81,7 +81,7 @@ class SplashActivity : AppCompatActivity() {
                 Intent(this, LegalActivity::class.java)
             }
             prefsManager.getAuthToken() == null -> {
-                Intent(this, LoginActivity::class.java)
+                Intent(this, AuthActivity::class.java)
             }
             else -> {
                 Intent(this, MainActivity::class.java)

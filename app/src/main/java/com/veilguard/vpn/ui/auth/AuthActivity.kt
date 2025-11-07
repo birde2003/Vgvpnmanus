@@ -18,8 +18,7 @@ class AuthActivity : AppCompatActivity() {
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
-    private lateinit var registerButton: Button
-    private lateinit var toggleText: TextView
+    private lateinit var signupButton: Button
     private lateinit var prefsManager: PreferencesManager
     
     private var isLoginMode = true
@@ -33,8 +32,7 @@ class AuthActivity : AppCompatActivity() {
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
-        registerButton = findViewById(R.id.registerButton)
-        toggleText = findViewById(R.id.toggleAuthMode)
+        signupButton = findViewById(R.id.signupButton)
         
         setupClickListeners()
     }
@@ -48,23 +46,8 @@ class AuthActivity : AppCompatActivity() {
             }
         }
         
-        registerButton.setOnClickListener {
+        signupButton.setOnClickListener {
             performRegister()
-        }
-        
-        toggleText.setOnClickListener {
-            toggleAuthMode()
-        }
-    }
-    
-    private fun toggleAuthMode() {
-        isLoginMode = !isLoginMode
-        if (isLoginMode) {
-            loginButton.text = "Login"
-            toggleText.text = "Don't have an account? Sign up"
-        } else {
-            loginButton.text = "Sign Up"
-            toggleText.text = "Already have an account? Login"
         }
     }
     

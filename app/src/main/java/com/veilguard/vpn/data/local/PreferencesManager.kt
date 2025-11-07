@@ -104,6 +104,29 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getBoolean("dark_mode", false)
     }
     
+    fun setOnboardingComplete(complete: Boolean) {
+        sharedPreferences.edit().putBoolean("onboarding_completed", complete).apply()
+    }
+    
+    fun hasAcceptedLegal(): Boolean {
+        return sharedPreferences.getBoolean("terms_accepted", false)
+    }
+    
+    fun getSelectedServer(): com.veilguard.vpn.data.model.Server? {
+        val id = sharedPreferences.getString("selected_server_id", null) ?: return null
+        val name = sharedPreferences.getString("selected_server_name", null) ?: return null
+        val ip = sharedPreferences.getString("selected_server_ip", null) ?: return null
+        return com.veilguard.vpn.data.model.Server(
+            id = id,
+            name = name,
+            ipAddress = ip,
+            location = "",
+            status = "active",
+            publicKey = null,
+            createdAt = null
+        )
+    }
+    
     fun clear() {
         sharedPreferences.edit().clear().apply()
     }

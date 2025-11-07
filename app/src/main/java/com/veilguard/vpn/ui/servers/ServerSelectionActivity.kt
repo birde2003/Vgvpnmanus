@@ -46,7 +46,7 @@ class ServerSelectionActivity : AppCompatActivity() {
             try {
                 val token = prefsManager.getAuthToken() ?: return@launch
                 val apiService = RetrofitClient.getApiService(this@ServerSelectionActivity)
-                val response = apiService.getServers("Bearer $token")
+                val response = apiService.getServers()
                 
                 if (response.isSuccessful) {
                     response.body()?.let { serverList ->
