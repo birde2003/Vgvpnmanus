@@ -199,11 +199,4 @@ class MainActivity : AppCompatActivity() {
             selectedServerText.text = "No server selected"
         }
     }
-    
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == VPN_REQUEST_CODE && resultCode == RESULT_OK) {
-            startVpnService()
-        }
-    }
 }
