@@ -33,23 +33,23 @@ class SubscriptionActivity : AppCompatActivity() {
     
     private fun setupPlanClickListeners() {
         findViewById<CardView>(R.id.plan1Month).setOnClickListener {
-            subscribeToPlan("1 month", 9.99)
+            subscribeToPlan("1 month")
         }
         
         findViewById<CardView>(R.id.plan3Months).setOnClickListener {
-            subscribeToPlan("3 months", 24.99)
+            subscribeToPlan("3 months")
         }
         
         findViewById<CardView>(R.id.plan6Months).setOnClickListener {
-            subscribeToPlan("6 months", 44.99)
+            subscribeToPlan("6 months")
         }
         
         findViewById<CardView>(R.id.plan12Months).setOnClickListener {
-            subscribeToPlan("12 months", 79.99)
+            subscribeToPlan("12 months")
         }
     }
     
-    private fun subscribeToPlan(plan: String, price: Double) {
+    private fun subscribeToPlan(plan: String) {
         lifecycleScope.launch {
             try {
                 val token = prefsManager.getAuthToken() ?: return@launch

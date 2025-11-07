@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
@@ -31,7 +32,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statisticsCard: CardView
     
     private var isConnected = false
-    private val VPN_REQUEST_CODE = 1001
+    
+    private val vpnPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            startVpnService()
+        } else {
+            Toast.makeText(this, "VPN permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +94,6 @@ class MainActivity : AppCompatActivity() {
     private fun checkTrialStatus() {
         lifecycleScope.launch {
             try {
-                val token = prefsManager.getAuthToken() ?: return@launch
                 val apiService = RetrofitClient.apiService
                 val deviceId = prefsManager.getDeviceId()
                 val response = apiService.checkTrialEligibility(deviceId)
@@ -140,7 +149,7 @@ class MainActivity : AppCompatActivity() {
     private fun connectVpn() {
         val intent = VpnService.prepare(this)
         if (intent != null) {
-            startActivityForResult(intent, VPN_REQUEST_CODE)
+            vpnPermissionLauncher.launch(intent)
         } else {
             startVpnService()
         }

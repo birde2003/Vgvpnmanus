@@ -131,7 +131,6 @@ class AuthActivity : AppCompatActivity() {
     private fun startTrialAfterSignup() {
         lifecycleScope.launch {
             try {
-                val token = prefsManager.getAuthToken() ?: return@launch
                 val email = prefsManager.getUserEmail() ?: return@launch
                 val deviceId = prefsManager.getDeviceId()
                 val apiService = RetrofitClient.apiService

@@ -73,7 +73,6 @@ class WireGuardTunnel(
         val vpnInput = FileInputStream(vpnInterface.fileDescriptor)
         val vpnOutput = FileOutputStream(vpnInterface.fileDescriptor)
         
-        val packet = ByteBuffer.allocate(32767)
         val deviceToNetwork = ByteBuffer.allocate(32767)
         val networkToDevice = ByteBuffer.allocate(32767)
         
