@@ -16,7 +16,7 @@ interface ApiService {
     suspend fun register(@Body request: RegisterRequest): Response<User>
     
     @GET("api/v1/vpn/servers")
-    suspend fun getServers(): Response<List<VpnServer>>
+    suspend fun getServers(): Response<List<Server>>
     
     @GET("api/v1/trials/check/{device_id}")
     suspend fun checkTrialEligibility(
