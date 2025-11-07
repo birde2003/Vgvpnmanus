@@ -8,77 +8,54 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import com.veilguard.vpn.R
 import com.veilguard.vpn.api.RetrofitClient
 import com.veilguard.vpn.data.local.PreferencesManager
-import com.veilguard.vpn.data.model.Server
 import com.veilguard.vpn.ui.servers.ServerSelectionActivity
 import com.veilguard.vpn.ui.settings.SettingsActivity
 import com.veilguard.vpn.ui.subscription.SubscriptionActivity
 import com.veilguard.vpn.vpn.VeilGuardVpnService
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var prefsManager: PreferencesManager
-    private lateinit var connectionStatusText: TextView
-    private lateinit var selectedServerText: TextView
     private lateinit var connectButton: Button
     private lateinit var selectServerButton: Button
     private lateinit var trialButton: Button
     private lateinit var subscribeButton: Button
     private lateinit var settingsButton: Button
+    private lateinit var statusText: TextView
+    private lateinit var selectedServerText: TextView
     private lateinit var statisticsCard: CardView
-    private lateinit var durationText: TextView
-    private lateinit var downloadText: TextView
-    private lateinit var uploadText: TextView
-    private lateinit var speedText: TextView
     
     private var isConnected = false
-    private val VPN_REQUEST_CODE = 100
+    private val VPN_REQUEST_CODE = 1001
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Apply theme
-        prefsManager = PreferencesManager(this)
-        applyTheme()
-        
         setContentView(R.layout.activity_main)
         
-        initializeViews()
-        setupListeners()
-        loadSelectedServer()
-        checkAutoConnect()
+        prefsManager = PreferencesManager(this)
+        
+        initViews()
+        setupClickListeners()
+        checkTrialStatus()
     }
     
-    private fun applyTheme() {
-        if (prefsManager.isDarkModeEnabled()) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        }
-    }
-    
-    private fun initializeViews() {
-        connectionStatusText = findViewById(R.id.connectionStatusText)
-        selectedServerText = findViewById(R.id.selectedServerText)
+    private fun initViews() {
         connectButton = findViewById(R.id.connectButton)
         selectServerButton = findViewById(R.id.selectServerButton)
         trialButton = findViewById(R.id.trialButton)
         subscribeButton = findViewById(R.id.subscribeButton)
         settingsButton = findViewById(R.id.settingsButton)
+        statusText = findViewById(R.id.connectionStatusText)
+        selectedServerText = findViewById(R.id.selectedServerText)
         statisticsCard = findViewById(R.id.statisticsCard)
-        durationText = findViewById(R.id.durationText)
-        downloadText = findViewById(R.id.downloadText)
-        uploadText = findViewById(R.id.uploadText)
-        speedText = findViewById(R.id.speedText)
     }
     
-    private fun setupListeners() {
+    private fun setupClickListeners() {
         connectButton.setOnClickListener {
             if (isConnected) {
                 disconnectVpn()
@@ -92,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         trialButton.setOnClickListener {
-            startTrial()
+            activateTrial()
         }
         
         subscribeButton.setOnClickListener {
@@ -104,152 +81,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-    private fun loadSelectedServer() {
-        val serverName = prefsManager.getSelectedServerName()
-        if (serverName != null) {
-            selectedServerText.text = serverName
-        } else {
-            selectedServerText.text = "No server selected"
-        }
-    }
-    
-    private fun checkAutoConnect() {
-        if (prefsManager.isAutoConnectEnabled() && !isConnected) {
-            val serverId = prefsManager.getSelectedServerId()
-            if (serverId != null) {
-                connectVpn()
-            }
-        }
-    }
-    
-    private fun connectVpn() {
-        val serverId = prefsManager.getSelectedServerId()
-        val serverName = prefsManager.getSelectedServerName()
-        val serverIp = prefsManager.getSelectedServerIp()
-        
-        if (serverId == null || serverName == null || serverIp == null) {
-            Toast.makeText(this, "Please select a server first", Toast.LENGTH_SHORT).show()
-            return
-        }
-        
-        val intent = VpnService.prepare(this)
-        if (intent != null) {
-            startActivityForResult(intent, VPN_REQUEST_CODE)
-        } else {
-            startVpnService(serverId, serverName, serverIp)
-        }
-    }
-    
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == VPN_REQUEST_CODE && resultCode == RESULT_OK) {
-            val serverId = prefsManager.getSelectedServerId()
-            val serverName = prefsManager.getSelectedServerName()
-            val serverIp = prefsManager.getSelectedServerIp()
-            if (serverId != null && serverName != null && serverIp != null) {
-                startVpnService(serverId, serverName, serverIp)
-            }
-        }
-    }
-    
-    private fun startVpnService(serverId: String, serverName: String, serverIp: String) {
-        val server = Server(
-            id = serverId,
-            name = serverName,
-            ipAddress = serverIp,
-            location = "",
-            status = "active"
-        )
-        
-        val intent = Intent(this, VeilGuardVpnService::class.java).apply {
-            action = VeilGuardVpnService.ACTION_CONNECT
-            putExtra(VeilGuardVpnService.EXTRA_SERVER, server)
-        }
-        startService(intent)
-        
-        updateConnectionStatus(true, serverName)
-        startStatisticsUpdates()
-    }
-    
-    private fun disconnectVpn() {
-        val intent = Intent(this, VeilGuardVpnService::class.java).apply {
-            action = VeilGuardVpnService.ACTION_DISCONNECT
-        }
-        startService(intent)
-        
-        updateConnectionStatus(false, null)
-        stopStatisticsUpdates()
-    }
-    
-    private fun updateConnectionStatus(connected: Boolean, serverName: String?) {
-        isConnected = connected
-        if (connected) {
-            connectionStatusText.text = "Connected"
-            connectionStatusText.setTextColor(getColor(R.color.green))
-            connectButton.text = "Disconnect"
-            selectedServerText.text = serverName ?: "Unknown Server"
-            statisticsCard.visibility = View.VISIBLE
-        } else {
-            connectionStatusText.text = "Disconnected"
-            connectionStatusText.setTextColor(getColor(R.color.red))
-            connectButton.text = "Connect"
-            loadSelectedServer()
-            statisticsCard.visibility = View.GONE
-        }
-    }
-    
-    private fun startStatisticsUpdates() {
-        lifecycleScope.launch {
-            while (isConnected) {
-                updateStatistics()
-                delay(1000)
-            }
-        }
-    }
-    
-    private fun stopStatisticsUpdates() {
-        // Statistics updates will stop automatically when isConnected becomes false
-    }
-    
-    private fun updateStatistics() {
-        // In a real implementation, these would come from VpnStatisticsManager
-        // For now, showing placeholder values
-        durationText.text = "00:15:32"
-        downloadText.text = "125.5 MB"
-        uploadText.text = "42.3 MB"
-        speedText.text = "↓ 2.5 MB/s ↑ 512 KB/s"
-    }
-    
-    private fun startTrial() {
+    private fun checkTrialStatus() {
         lifecycleScope.launch {
             try {
-                val deviceId = prefsManager.getDeviceId()
                 val token = prefsManager.getAuthToken() ?: return@launch
                 val apiService = RetrofitClient.getApiService(this@MainActivity)
+                val response = apiService.checkTrialStatus("Bearer $token")
                 
-                // Check eligibility
-                val checkResponse = apiService.checkTrial("Bearer $token", deviceId)
-                if (checkResponse.isSuccessful) {
-                    val eligible = checkResponse.body()?.get("eligible") as? Boolean ?: false
-                    if (!eligible) {
-                        Toast.makeText(this@MainActivity, 
-                            "Trial already used on this device", Toast.LENGTH_SHORT).show()
-                        return@launch
+                if (response.isSuccessful) {
+                    val status = response.body()
+                    if (status?.get("has_trial") == true) {
+                        trialButton.isEnabled = false
+                        trialButton.text = "Trial Active"
                     }
                 }
+            } catch (e: Exception) {
+                // Ignore errors
+            }
+        }
+    }
+    
+    private fun activateTrial() {
+        lifecycleScope.launch {
+            try {
+                val token = prefsManager.getAuthToken()
+                if (token == null) {
+                    Toast.makeText(this@MainActivity, 
+                        "Please sign up first to start trial", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
                 
-                // Start trial
-                val email = prefsManager.getUserEmail() ?: return@launch
-                val startRequest = mapOf("device_id" to deviceId, "email" to email)
-                val startResponse = apiService.startTrial("Bearer $token", startRequest)
+                val apiService = RetrofitClient.getApiService(this@MainActivity)
+                val response = apiService.startTrial("Bearer $token")
                 
-                if (startResponse.isSuccessful) {
+                if (response.isSuccessful) {
                     Toast.makeText(this@MainActivity, 
                         "7-day free trial activated!", Toast.LENGTH_LONG).show()
                     trialButton.isEnabled = false
+                    trialButton.text = "Trial Active"
                 } else {
-                    Toast.makeText(this@MainActivity, 
-                        "Failed to start trial", Toast.LENGTH_SHORT).show()
+                    val error = response.errorBody()?.string() ?: "Failed to start trial"
+                    Toast.makeText(this@MainActivity, error, Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@MainActivity, 
@@ -258,8 +130,64 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-    override fun onResume() {
-        super.onResume()
-        loadSelectedServer()
+    private fun connectVpn() {
+        val intent = VpnService.prepare(this)
+        if (intent != null) {
+            startActivityForResult(intent, VPN_REQUEST_CODE)
+        } else {
+            startVpnService()
+        }
+    }
+    
+    private fun startVpnService() {
+        val selectedServer = prefsManager.getSelectedServer()
+        if (selectedServer == null) {
+            Toast.makeText(this, "Please select a server first", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, ServerSelectionActivity::class.java))
+            return
+        }
+        
+        val intent = Intent(this, VeilGuardVpnService::class.java)
+        intent.action = VeilGuardVpnService.ACTION_CONNECT
+        startService(intent)
+        
+        updateConnectionStatus(true)
+    }
+    
+    private fun disconnectVpn() {
+        val intent = Intent(this, VeilGuardVpnService::class.java)
+        intent.action = VeilGuardVpnService.ACTION_DISCONNECT
+        startService(intent)
+        
+        updateConnectionStatus(false)
+    }
+    
+    private fun updateConnectionStatus(connected: Boolean) {
+        isConnected = connected
+        
+        if (connected) {
+            statusText.text = "Connected"
+            statusText.setTextColor(getColor(R.color.green))
+            connectButton.text = "Disconnect"
+            connectButton.backgroundTintList = getColorStateList(R.color.red)
+            statisticsCard.visibility = View.VISIBLE
+            
+            val server = prefsManager.getSelectedServer()
+            selectedServerText.text = server ?: "Unknown Server"
+        } else {
+            statusText.text = "Disconnected"
+            statusText.setTextColor(getColor(R.color.red))
+            connectButton.text = "Connect"
+            connectButton.backgroundTintList = getColorStateList(R.color.primary)
+            statisticsCard.visibility = View.GONE
+            selectedServerText.text = "No server selected"
+        }
+    }
+    
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == VPN_REQUEST_CODE && resultCode == RESULT_OK) {
+            startVpnService()
+        }
     }
 }

@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@android:color/white">
     
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,26 +11,53 @@
         android:orientation="vertical"
         android:padding="24dp">
         
-        <TextView
+        <!-- Header with Settings Icon -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="VEILGUARD"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VEILGUARD"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_centerInParent="true" />
+            
+            <Button
+                android:id="@+id/settingsButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="⚙"
+                android:textSize="24sp"
+                android:layout_alignParentEnd="true"
+                android:backgroundTint="@android:color/transparent"
+                android:textColor="@android:color/black" />
+        </RelativeLayout>
         
         <!-- Connection Status Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
             
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="24dp"
+                android:gravity="center">
+                
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@mipmap/ic_launcher"
+                    android:layout_marginBottom="16dp" />
                 
                 <TextView
                     android:id="@+id/connectionStatusText"
@@ -47,18 +75,21 @@
                     android:layout_height="wrap_content"
                     android:text="No server selected"
                     android:textSize="16sp"
+                    android:textColor="@android:color/darker_gray"
                     android:gravity="center"
                     android:layout_marginTop="8dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
         
-        <!-- Statistics Card -->
+        <!-- Statistics Card (Hidden by default) -->
         <androidx.cardview.widget.CardView
             android:id="@+id/statisticsCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
             
             <LinearLayout
                 android:layout_width="match_parent"
@@ -72,6 +103,7 @@
                     android:text="Connection Statistics"
                     android:textSize="18sp"
                     android:textStyle="bold"
+                    android:textColor="@android:color/black"
                     android:layout_marginBottom="12dp" />
                 
                 <LinearLayout
@@ -85,7 +117,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Duration:"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:textColor="@android:color/black" />
                     
                     <TextView
                         android:id="@+id/durationText"
@@ -93,7 +126,8 @@
                         android:layout_height="wrap_content"
                         android:text="00:00:00"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black" />
                 </LinearLayout>
                 
                 <LinearLayout
@@ -107,7 +141,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Download:"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:textColor="@android:color/black" />
                     
                     <TextView
                         android:id="@+id/downloadText"
@@ -115,29 +150,8 @@
                         android:layout_height="wrap_content"
                         android:text="0 KB"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-                
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-                    
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Upload:"
-                        android:textSize="14sp" />
-                    
-                    <TextView
-                        android:id="@+id/uploadText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0 KB"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black" />
                 </LinearLayout>
                 
                 <LinearLayout
@@ -149,16 +163,18 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Speed:"
-                        android:textSize="14sp" />
+                        android:text="Upload:"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/black" />
                     
                     <TextView
-                        android:id="@+id/speedText"
+                        android:id="@+id/uploadText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="↓ 0 KB/s ↑ 0 KB/s"
+                        android:text="0 KB"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -169,38 +185,47 @@
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:text="Connect"
-            android:textSize="18sp"
-            android:layout_marginBottom="16dp" />
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/primary" />
         
         <!-- Server Selection Button -->
         <Button
             android:id="@+id/selectServerButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select Server"
-            android:layout_marginBottom="8dp" />
+            android:text="📍 Select Server"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
+            style="@style/Widget.Material3.Button.OutlinedButton" />
         
-        <!-- Trial Button -->
-        <Button
-            android:id="@+id/trialButton"
+        <!-- Trial/Subscribe Buttons -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Start 7-Day Free Trial"
-            android:layout_marginBottom="8dp" />
-        
-        <!-- Subscribe Button -->
-        <Button
-            android:id="@+id/subscribeButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Subscribe Now"
-            android:layout_marginBottom="8dp" />
-        
-        <!-- Settings Button -->
-        <Button
-            android:id="@+id/settingsButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Settings" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            
+            <Button
+                android:id="@+id/trialButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Free Trial"
+                android:textSize="14sp"
+                android:layout_marginEnd="4dp"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+            
+            <Button
+                android:id="@+id/subscribeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Subscribe"
+                android:textSize="14sp"
+                android:layout_marginStart="4dp"
+                android:backgroundTint="@color/accent" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

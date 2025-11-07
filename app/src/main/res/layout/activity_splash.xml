@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary">
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:gravity="center">
+        
+        <ImageView
+            android:id="@+id/splashLogo"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="fitCenter" />
+        
+        <TextView
+            android:id="@+id/appNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VEILGUARD"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="24dp"
+            android:letterSpacing="0.1" />
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Secure VPN Protection"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:alpha="0.8"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+</RelativeLayout>

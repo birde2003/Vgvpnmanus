@@ -4,22 +4,24 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.veilguard.vpn.R
 import com.veilguard.vpn.api.RetrofitClient
 import com.veilguard.vpn.data.local.PreferencesManager
-import com.veilguard.vpn.data.model.RegisterRequest
 import com.veilguard.vpn.ui.main.MainActivity
 import kotlinx.coroutines.launch
 
 class AuthActivity : AppCompatActivity() {
-    private lateinit var prefsManager: PreferencesManager
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
-    private lateinit var signupButton: Button
+    private lateinit var registerButton: Button
+    private lateinit var toggleText: TextView
+    private lateinit var prefsManager: PreferencesManager
+    
     private var isLoginMode = true
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,39 +33,43 @@ class AuthActivity : AppCompatActivity() {
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
-        signupButton = findViewById(R.id.signupButton)
+        registerButton = findViewById(R.id.registerButton)
+        toggleText = findViewById(R.id.toggleAuthMode)
         
+        setupClickListeners()
+    }
+    
+    private fun setupClickListeners() {
         loginButton.setOnClickListener {
             if (isLoginMode) {
                 performLogin()
             } else {
-                isLoginMode = true
-                updateUI()
+                performRegister()
             }
         }
         
-        signupButton.setOnClickListener {
-            if (!isLoginMode) {
-                performSignup()
-            } else {
-                isLoginMode = false
-                updateUI()
-            }
+        registerButton.setOnClickListener {
+            performRegister()
+        }
+        
+        toggleText.setOnClickListener {
+            toggleAuthMode()
         }
     }
     
-    private fun updateUI() {
+    private fun toggleAuthMode() {
+        isLoginMode = !isLoginMode
         if (isLoginMode) {
-            loginButton.text = getString(R.string.btn_login)
-            signupButton.text = getString(R.string.sign_up_here)
+            loginButton.text = "Login"
+            toggleText.text = "Don't have an account? Sign up"
         } else {
-            loginButton.text = getString(R.string.sign_in_here)
-            signupButton.text = getString(R.string.btn_signup)
+            loginButton.text = "Sign Up"
+            toggleText.text = "Already have an account? Login"
         }
     }
     
     private fun performLogin() {
-        val email = emailInput.text.toString().trim()
+        val email = emailInput.text.toString()
         val password = passwordInput.text.toString()
         
         if (email.isEmpty() || password.isEmpty()) {
@@ -73,26 +79,38 @@ class AuthActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val response = RetrofitClient.apiService.login(email, password)
-                if (response.isSuccessful && response.body() != null) {
-                    val authResponse = response.body()!!
-                    prefsManager.saveAuthToken(authResponse.access_token)
-                    prefsManager.saveUserEmail(email)
-                    RetrofitClient.setAuthToken(authResponse.access_token)
-                    
-                    startActivity(Intent(this@AuthActivity, MainActivity::class.java))
-                    finish()
+                val apiService = RetrofitClient.getApiService(this@AuthActivity)
+                val formData = mapOf(
+                    "username" to email,
+                    "password" to password
+                )
+                
+                val response = apiService.login(formData)
+                
+                if (response.isSuccessful) {
+                    val token = response.body()?.get("access_token") as? String
+                    if (token != null) {
+                        prefsManager.saveAuthToken(token)
+                        prefsManager.saveUserEmail(email)
+                        
+                        Toast.makeText(this@AuthActivity, 
+                            "Login successful!", Toast.LENGTH_SHORT).show()
+                        
+                        navigateToMain()
+                    }
                 } else {
-                    Toast.makeText(this@AuthActivity, R.string.error_login_failed, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AuthActivity, 
+                        "Login failed", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@AuthActivity, R.string.error_network, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AuthActivity, 
+                    "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
     
-    private fun performSignup() {
-        val email = emailInput.text.toString().trim()
+    private fun performRegister() {
+        val email = emailInput.text.toString()
         val password = passwordInput.text.toString()
         
         if (email.isEmpty() || password.isEmpty()) {
@@ -100,27 +118,50 @@ class AuthActivity : AppCompatActivity() {
             return
         }
         
-        if (password.length < 8) {
-            Toast.makeText(this, R.string.error_short_password, Toast.LENGTH_SHORT).show()
-            return
-        }
-        
         lifecycleScope.launch {
             try {
-                val deviceId = prefsManager.getDeviceId()
-                val request = RegisterRequest(email, password, deviceId)
-                val response = RetrofitClient.apiService.register(request)
+                val apiService = RetrofitClient.getApiService(this@AuthActivity)
+                val request = mapOf(
+                    "email" to email,
+                    "password" to password
+                )
+                
+                val response = apiService.register(request)
                 
                 if (response.isSuccessful) {
-                    Toast.makeText(this@AuthActivity, "Account created! Please login.", Toast.LENGTH_SHORT).show()
-                    isLoginMode = true
-                    updateUI()
+                    Toast.makeText(this@AuthActivity, 
+                        "Registration successful! Logging in...", Toast.LENGTH_SHORT).show()
+                    
+                    // Auto-login after registration
+                    performLogin()
+                    
+                    // Auto-start trial after registration
+                    startTrialAfterSignup()
                 } else {
-                    Toast.makeText(this@AuthActivity, R.string.error_signup_failed, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AuthActivity, 
+                        "Registration failed", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@AuthActivity, R.string.error_network, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AuthActivity, 
+                    "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    
+    private fun startTrialAfterSignup() {
+        lifecycleScope.launch {
+            try {
+                val token = prefsManager.getAuthToken() ?: return@launch
+                val apiService = RetrofitClient.getApiService(this@AuthActivity)
+                apiService.startTrial("Bearer $token")
+            } catch (e: Exception) {
+                // Ignore errors - user can manually start trial later
+            }
+        }
+    }
+    
+    private fun navigateToMain() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
     }
 }
