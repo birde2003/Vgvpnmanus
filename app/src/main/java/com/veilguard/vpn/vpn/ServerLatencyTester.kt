@@ -11,18 +11,11 @@ class ServerLatencyTester {
         try {
             val startTime = System.currentTimeMillis()
             val socket = Socket()
-            socket.connect(InetSocketAddress(server.ipAddress, 51820), 5000)
-            val latency = System.currentTimeMillis() - startTime
+            socket.connect(InetSocketAddress(server.ipAddress, 51820), 3000)
             socket.close()
-            latency
+            System.currentTimeMillis() - startTime
         } catch (e: Exception) {
-            -1L // Indicates server is unreachable
-        }
-    }
-    
-    suspend fun testMultipleServers(servers: List<Server>): Map<String, Long> {
-        return servers.associate { server ->
-            server.id to testLatency(server)
+            -1L // Failed to connect
         }
     }
 }

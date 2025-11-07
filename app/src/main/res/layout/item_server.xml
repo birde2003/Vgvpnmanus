@@ -6,50 +6,53 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp">
-        
-        <View
+
+        <ImageView
             android:id="@+id/latencyIndicator"
-            android:layout_width="12dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="16dp"
-            android:background="@color/green" />
-        
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/presence_online"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"/>
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
-            
+
             <TextView
                 android:id="@+id/serverName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New York"
+                android:text="Server Name"
                 android:textSize="18sp"
-                android:textStyle="bold" />
-            
+                android:textStyle="bold"
+                android:textColor="@android:color/black"/>
+
             <TextView
                 android:id="@+id/serverLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="nyc1"
+                android:text="Location"
                 android:textSize="14sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@android:color/darker_gray"/>
         </LinearLayout>
-        
+
         <TextView
-            android:id="@+id/serverLatency"
+            android:id="@+id/latencyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="25ms"
+            android:text="-- ms"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/green" />
+            android:layout_gravity="center_vertical"
+            android:textColor="@android:color/holo_blue_dark"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

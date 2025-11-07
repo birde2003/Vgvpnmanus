@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.veilguard.vpn.R
@@ -14,50 +15,46 @@ class ServerAdapter(
     private val latencies: Map<String, Long>,
     private val onServerClick: (Server) -> Unit
 ) : RecyclerView.Adapter<ServerAdapter.ServerViewHolder>() {
-    
+
     class ServerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val serverName: TextView = view.findViewById(R.id.serverName)
         val serverLocation: TextView = view.findViewById(R.id.serverLocation)
-        val serverLatency: TextView = view.findViewById(R.id.serverLatency)
-        val latencyIndicator: View = view.findViewById(R.id.latencyIndicator)
+        val latencyText: TextView = view.findViewById(R.id.latencyText)
+        val latencyIndicator: ImageView = view.findViewById(R.id.latencyIndicator)
     }
-    
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServerViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_server, parent, false)
         return ServerViewHolder(view)
     }
-    
+
     override fun onBindViewHolder(holder: ServerViewHolder, position: Int) {
         val server = servers[position]
-        val latency = latencies[server.id] ?: -1L
-        
+        val latency = latencies[server.id]
+
         holder.serverName.text = server.name
         holder.serverLocation.text = server.location
-        
-        when {
-            latency < 0 -> {
-                holder.serverLatency.text = "Offline"
-                holder.latencyIndicator.setBackgroundColor(Color.RED)
+
+        if (latency != null && latency > 0) {
+            holder.latencyText.text = "${latency}ms"
+            
+            // Set indicator color based on latency
+            val color = when {
+                latency < 50 -> Color.GREEN
+                latency < 150 -> Color.YELLOW
+                else -> Color.RED
             }
-            latency < 50 -> {
-                holder.serverLatency.text = "${latency}ms"
-                holder.latencyIndicator.setBackgroundColor(Color.GREEN)
-            }
-            latency < 100 -> {
-                holder.serverLatency.text = "${latency}ms"
-                holder.latencyIndicator.setBackgroundColor(Color.YELLOW)
-            }
-            else -> {
-                holder.serverLatency.text = "${latency}ms"
-                holder.latencyIndicator.setBackgroundColor(Color.rgb(255, 165, 0))
-            }
+            holder.latencyIndicator.setColorFilter(color)
+        } else {
+            holder.latencyText.text = "Testing..."
+            holder.latencyIndicator.setColorFilter(Color.GRAY)
         }
-        
+
         holder.itemView.setOnClickListener {
             onServerClick(server)
         }
     }
-    
+
     override fun getItemCount() = servers.size
 }

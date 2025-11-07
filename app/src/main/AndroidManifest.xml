@@ -63,5 +63,11 @@
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service>
+            <activity
+            android:name=".ui.serverselection.ServerSelectionActivity"
+            android:exported="false" />
+            <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false" />
     </application>
 </manifest>
