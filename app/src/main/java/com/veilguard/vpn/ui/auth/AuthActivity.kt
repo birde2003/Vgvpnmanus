@@ -62,7 +62,7 @@ class AuthActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val apiService = RetrofitClient.getApiService()
+                val apiService = RetrofitClient.apiService
                 val response = apiService.login(email, password)
                 
                 if (response.isSuccessful) {
@@ -98,7 +98,7 @@ class AuthActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val apiService = RetrofitClient.getApiService()
+                val apiService = RetrofitClient.apiService
                 val deviceId = prefsManager.getDeviceId()
                 val request = com.veilguard.vpn.data.model.RegisterRequest(
                     email = email,
@@ -134,7 +134,7 @@ class AuthActivity : AppCompatActivity() {
                 val token = prefsManager.getAuthToken() ?: return@launch
                 val email = prefsManager.getUserEmail() ?: return@launch
                 val deviceId = prefsManager.getDeviceId()
-                val apiService = RetrofitClient.getApiService()
+                val apiService = RetrofitClient.apiService
                 val request = com.veilguard.vpn.data.model.TrialRequest(
                     email = email,
                     device_id = deviceId

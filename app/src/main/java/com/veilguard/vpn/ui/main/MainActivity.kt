@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val token = prefsManager.getAuthToken() ?: return@launch
-                val apiService = RetrofitClient.getApiService()
+                val apiService = RetrofitClient.apiService
                 val deviceId = prefsManager.getDeviceId()
                 val response = apiService.checkTrialEligibility(deviceId)
                 
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
                 
                 val email = prefsManager.getUserEmail() ?: return@launch
                 val deviceId = prefsManager.getDeviceId()
-                val apiService = RetrofitClient.getApiService()
+                val apiService = RetrofitClient.apiService
                 val request = com.veilguard.vpn.data.model.TrialRequest(
                     email = email,
                     device_id = deviceId
