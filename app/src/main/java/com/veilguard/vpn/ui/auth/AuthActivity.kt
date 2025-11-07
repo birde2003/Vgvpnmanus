@@ -63,15 +63,10 @@ class AuthActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val apiService = RetrofitClient.getApiService(this@AuthActivity)
-                val formData = mapOf(
-                    "username" to email,
-                    "password" to password
-                )
-                
-                val response = apiService.login(formData)
+                val response = apiService.login(email, password)
                 
                 if (response.isSuccessful) {
-                    val token = response.body()?.get("access_token") as? String
+                    val token = response.body()?.access_token
                     if (token != null) {
                         prefsManager.saveAuthToken(token)
                         prefsManager.saveUserEmail(email)
@@ -104,9 +99,11 @@ class AuthActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val apiService = RetrofitClient.getApiService(this@AuthActivity)
-                val request = mapOf(
-                    "email" to email,
-                    "password" to password
+                val deviceId = prefsManager.getDeviceId()
+                val request = com.veilguard.vpn.data.model.RegisterRequest(
+                    email = email,
+                    password = password,
+                    device_id = deviceId
                 )
                 
                 val response = apiService.register(request)
@@ -135,8 +132,14 @@ class AuthActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val token = prefsManager.getAuthToken() ?: return@launch
+                val email = prefsManager.getUserEmail() ?: return@launch
+                val deviceId = prefsManager.getDeviceId()
                 val apiService = RetrofitClient.getApiService(this@AuthActivity)
-                apiService.startTrial("Bearer $token")
+                val request = com.veilguard.vpn.data.model.TrialRequest(
+                    email = email,
+                    device_id = deviceId
+                )
+                apiService.startTrial(request)
             } catch (e: Exception) {
                 // Ignore errors - user can manually start trial later
             }

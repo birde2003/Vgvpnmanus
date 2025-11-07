@@ -86,13 +86,14 @@ class MainActivity : AppCompatActivity() {
             try {
                 val token = prefsManager.getAuthToken() ?: return@launch
                 val apiService = RetrofitClient.getApiService(this@MainActivity)
-                val response = apiService.checkTrialStatus("Bearer $token")
+                val deviceId = prefsManager.getDeviceId()
+                val response = apiService.checkTrialEligibility(deviceId)
                 
                 if (response.isSuccessful) {
-                    val status = response.body()
-                    if (status?.get("has_trial") == true) {
+                    val eligibility = response.body()
+                    if (eligibility?.eligible == false) {
                         trialButton.isEnabled = false
-                        trialButton.text = "Trial Active"
+                        trialButton.text = "Trial Used"
                     }
                 }
             } catch (e: Exception) {
@@ -111,8 +112,14 @@ class MainActivity : AppCompatActivity() {
                     return@launch
                 }
                 
+                val email = prefsManager.getUserEmail() ?: return@launch
+                val deviceId = prefsManager.getDeviceId()
                 val apiService = RetrofitClient.getApiService(this@MainActivity)
-                val response = apiService.startTrial("Bearer $token")
+                val request = com.veilguard.vpn.data.model.TrialRequest(
+                    email = email,
+                    device_id = deviceId
+                )
+                val response = apiService.startTrial(request)
                 
                 if (response.isSuccessful) {
                     Toast.makeText(this@MainActivity, 
@@ -173,7 +180,7 @@ class MainActivity : AppCompatActivity() {
             statisticsCard.visibility = View.VISIBLE
             
             val server = prefsManager.getSelectedServer()
-            selectedServerText.text = server ?: "Unknown Server"
+            selectedServerText.text = server?.name ?: "Unknown Server"
         } else {
             statusText.text = "Disconnected"
             statusText.setTextColor(getColor(R.color.red))
