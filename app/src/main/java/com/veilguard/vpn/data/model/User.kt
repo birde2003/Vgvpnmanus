@@ -11,14 +11,3 @@ data class LoginRequest(
     val username: String,
     val password: String
 )
-
-data class RegisterRequest(
-    val email: String,
-    val password: String,
-    val device_id: String
-)
-
-data class AuthResponse(
-    val access_token: String,
-    val token_type: String
-)

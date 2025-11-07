@@ -18,15 +18,8 @@ import com.veilguard.vpn.BuildConfig
 import com.veilguard.vpn.R
 import com.veilguard.vpn.api.RetrofitClient
 import com.veilguard.vpn.data.local.PreferencesManager
+import com.veilguard.vpn.data.model.SubscriptionPlan
 import kotlinx.coroutines.launch
-
-data class SubscriptionPlan(
-    val id: String,
-    val name: String,
-    val duration: String,
-    val price: String,
-    val priceId: String
-)
 
 class SubscriptionActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -35,10 +28,10 @@ class SubscriptionActivity : AppCompatActivity() {
     private lateinit var paymentSheet: PaymentSheet
     
     private val plans = listOf(
-        SubscriptionPlan("1", "1 Month", "1 month", "$9.99", "price_1month"),
-        SubscriptionPlan("3", "3 Months", "3 months", "$24.99", "price_3months"),
-        SubscriptionPlan("6", "6 Months", "6 months", "$44.99", "price_6months"),
-        SubscriptionPlan("12", "12 Months", "12 months", "$79.99", "price_12months")
+        SubscriptionPlan("1", "1 Month", 1, 9.99, "USD", emptyList(), "1 month", "price_1month"),
+        SubscriptionPlan("3", "3 Months", 3, 24.99, "USD", emptyList(), "3 months", "price_3months"),
+        SubscriptionPlan("6", "6 Months", 6, 44.99, "USD", emptyList(), "6 months", "price_6months"),
+        SubscriptionPlan("12", "12 Months", 12, 79.99, "USD", emptyList(), "12 months", "price_12months")
     )
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,35 +100,4 @@ class SubscriptionActivity : AppCompatActivity() {
             }
         }
     }
-}
-
-class SubscriptionAdapter(
-    private val plans: List<SubscriptionPlan>,
-    private val onPlanClick: (SubscriptionPlan) -> Unit
-) : RecyclerView.Adapter<SubscriptionAdapter.ViewHolder>() {
-    
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val planName: TextView = view.findViewById(R.id.planName)
-        val planDuration: TextView = view.findViewById(R.id.planDuration)
-        val planPrice: TextView = view.findViewById(R.id.planPrice)
-        val subscribeButton: Button = view.findViewById(R.id.subscribeButton)
-    }
-    
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_subscription_plan, parent, false)
-        return ViewHolder(view)
-    }
-    
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val plan = plans[position]
-        holder.planName.text = plan.name
-        holder.planDuration.text = plan.duration
-        holder.planPrice.text = plan.price
-        holder.subscribeButton.setOnClickListener {
-            onPlanClick(plan)
-        }
-    }
-    
-    override fun getItemCount() = plans.size
 }

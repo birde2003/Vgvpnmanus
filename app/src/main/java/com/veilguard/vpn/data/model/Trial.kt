@@ -8,13 +8,3 @@ data class Trial(
     val expires_at: String,
     val created_at: String
 )
-
-data class TrialRequest(
-    val device_id: String,
-    val email: String
-)
-
-data class TrialEligibility(
-    val eligible: Boolean,
-    val message: String
-)

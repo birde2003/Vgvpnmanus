@@ -8,11 +8,3 @@ data class Subscription(
     val expires_at: String,
     val stripe_subscription_id: String?
 )
-
-data class SubscriptionPlan(
-    val id: String,
-    val name: String,
-    val duration_months: Int,
-    val price: Double,
-    val currency: String
-)
