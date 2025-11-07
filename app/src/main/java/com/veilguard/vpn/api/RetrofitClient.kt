@@ -40,7 +40,7 @@ object RetrofitClient {
     
     val apiService: ApiService = retrofit.create(ApiService::class.java)
     
-    fun getApiService(context: android.content.Context): ApiService {
+    fun getApiService(): ApiService {
         return apiService
     }
 }

@@ -45,7 +45,7 @@ class ServerSelectionActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val token = prefsManager.getAuthToken() ?: return@launch
-                val apiService = RetrofitClient.getApiService(this@ServerSelectionActivity)
+                val apiService = RetrofitClient.getApiService()
                 val response = apiService.getServers()
                 
                 if (response.isSuccessful) {

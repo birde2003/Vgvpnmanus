@@ -54,7 +54,7 @@ class SubscriptionActivity : AppCompatActivity() {
             try {
                 val token = prefsManager.getAuthToken() ?: return@launch
                 val email = prefsManager.getUserEmail() ?: return@launch
-                val apiService = RetrofitClient.getApiService(this@SubscriptionActivity)
+                val apiService = RetrofitClient.getApiService()
                 
                 val request = mapOf(
                     "email" to email,
