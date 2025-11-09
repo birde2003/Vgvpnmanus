@@ -17,7 +17,7 @@ android {
         
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         
-        buildConfigField "String", "API_BASE_URL", "\"https://api.vg-vpn.com\""
+        buildConfigField "String", "API_BASE_URL", "\"http://167.99.140.80\""
         buildConfigField "String", "STRIPE_PUBLISHABLE_KEY", "\"pk_live_51Q8V7eF8cjWjuByVKI8DvKOGF7CQDkBDz5zlvN3He2U0WILpOhull5r3IQRuUJ1dlBJPMkZW8iCecHfEJhcTXEaY00lK7mRsET\""
     }
 
