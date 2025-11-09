@@ -58,9 +58,11 @@ class ServerSelectionActivity : AppCompatActivity() {
                 
                 if (response.isSuccessful && response.body() != null) {
                     val serverList = response.body()!!
-                    if (serverList.isNotEmpty()) {
+                    // Filter servers - only show active servers
+                    val activeServers = serverList.filter { it.status == "active" }
+                    if (activeServers.isNotEmpty()) {
                         servers.clear()
-                        servers.addAll(serverList)
+                        servers.addAll(activeServers)
                         adapter.notifyDataSetChanged()
                         
                         // Test latencies
