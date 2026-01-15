@@ -1,6 +1,9 @@
 package com.veilguard.vpn.ui.main
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.VpnService
 import android.os.Bundle
 import android.view.View
@@ -33,6 +36,15 @@ class MainActivity : AppCompatActivity() {
     
     private var isConnected = false
     
+    private val vpnStatusReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == VeilGuardVpnService.ACTION_STATUS_CHANGED) {
+                val connected = intent.getBooleanExtra(VeilGuardVpnService.EXTRA_CONNECTED, false)
+                updateConnectionStatus(connected)
+            }
+        }
+    }
+    
     private val vpnPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -52,6 +64,13 @@ class MainActivity : AppCompatActivity() {
         initViews()
         setupClickListeners()
         checkTrialStatus()
+        
+        registerReceiver(vpnStatusReceiver, IntentFilter(VeilGuardVpnService.ACTION_STATUS_CHANGED))
+    }
+    
+    override fun onDestroy() {
+        unregisterReceiver(vpnStatusReceiver)
+        super.onDestroy()
     }
     
     private fun initViews() {
@@ -63,6 +82,10 @@ class MainActivity : AppCompatActivity() {
         statusText = findViewById(R.id.connectionStatusText)
         selectedServerText = findViewById(R.id.selectedServerText)
         statisticsCard = findViewById(R.id.statisticsCard)
+        
+        // Initial UI state
+        val server = prefsManager.getSelectedServer()
+        selectedServerText.text = server?.name ?: "No server selected"
     }
     
     private fun setupClickListeners() {
@@ -166,16 +189,12 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, VeilGuardVpnService::class.java)
         intent.action = VeilGuardVpnService.ACTION_CONNECT
         startService(intent)
-        
-        updateConnectionStatus(true)
     }
     
     private fun disconnectVpn() {
         val intent = Intent(this, VeilGuardVpnService::class.java)
         intent.action = VeilGuardVpnService.ACTION_DISCONNECT
         startService(intent)
-        
-        updateConnectionStatus(false)
     }
     
     private fun updateConnectionStatus(connected: Boolean) {
@@ -196,7 +215,16 @@ class MainActivity : AppCompatActivity() {
             connectButton.text = "Connect"
             connectButton.backgroundTintList = getColorStateList(R.color.primary)
             statisticsCard.visibility = View.GONE
-            selectedServerText.text = "No server selected"
+            
+            val server = prefsManager.getSelectedServer()
+            selectedServerText.text = server?.name ?: "No server selected"
         }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // Refresh server name in case it changed
+        val server = prefsManager.getSelectedServer()
+        selectedServerText.text = server?.name ?: "No server selected"
     }
 }

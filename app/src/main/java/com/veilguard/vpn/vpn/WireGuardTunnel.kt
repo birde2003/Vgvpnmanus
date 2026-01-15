@@ -7,13 +7,9 @@ import java.io.FileOutputStream
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
-import java.nio.channels.Selector
 import java.nio.channels.SelectionKey
+import java.nio.channels.Selector
 
-/**
- * WireGuard tunnel implementation for VPN connectivity
- * This handles the actual packet routing through the VPN tunnel
- */
 class WireGuardTunnel(
     private val vpnInterface: ParcelFileDescriptor,
     private val serverAddress: String,
@@ -28,105 +24,76 @@ class WireGuardTunnel(
         isRunning = true
         
         try {
-            // Create UDP channel for VPN tunnel
             tunnelChannel = DatagramChannel.open()
             tunnelChannel?.configureBlocking(false)
-            tunnelChannel?.connect(InetSocketAddress(serverAddress, serverPort))
             
-            // Protect socket from being routed through VPN (prevents loop)
             if (!protectSocket(tunnelChannel!!)) {
                 Log.e(TAG, "Failed to protect socket")
-                stop()
                 return
             }
             
-            // Create selector for non-blocking I/O
+            tunnelChannel?.connect(InetSocketAddress(serverAddress, serverPort))
             selector = Selector.open()
             tunnelChannel?.register(selector, SelectionKey.OP_READ)
             
-            // Start tunnel loop
             runTunnel()
-            
         } catch (e: Exception) {
             Log.e(TAG, "Error starting tunnel", e)
+        } finally {
             stop()
         }
     }
     
     fun stop() {
         isRunning = false
-        
         try {
             selector?.close()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error closing selector", e)
-        }
-        
-        try {
             tunnelChannel?.close()
         } catch (e: Exception) {
-            Log.e(TAG, "Error closing tunnel channel", e)
+            // Ignore
         }
     }
     
     private fun runTunnel() {
-        val vpnInput = FileInputStream(vpnInterface.fileDescriptor)
-        val vpnOutput = FileOutputStream(vpnInterface.fileDescriptor)
+        val vpnInput = FileInputStream(vpnInterface.fileDescriptor).channel
+        val vpnOutput = FileOutputStream(vpnInterface.fileDescriptor).channel
         
-        val deviceToNetwork = ByteBuffer.allocate(32767)
-        val networkToDevice = ByteBuffer.allocate(32767)
+        val deviceToNetwork = ByteBuffer.allocate(16384)
+        val networkToDevice = ByteBuffer.allocate(16384)
         
-        try {
-            while (isRunning) {
-                // Read from VPN interface (packets from device)
-                deviceToNetwork.clear()
-                val length = vpnInput.channel.read(deviceToNetwork)
-                
-                if (length > 0) {
-                    deviceToNetwork.flip()
-                    
-                    // Send packet to VPN server
-                    try {
-                        tunnelChannel?.write(deviceToNetwork)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error sending to tunnel", e)
-                    }
-                }
-                
-                // Check for packets from VPN server
-                selector?.selectNow()
+        while (isRunning) {
+            var idle = true
+            
+            // 1. Read from Device -> Send to Server
+            deviceToNetwork.clear()
+            val readFromDevice = vpnInput.read(deviceToNetwork)
+            if (readFromDevice > 0) {
+                deviceToNetwork.flip()
+                tunnelChannel?.write(deviceToNetwork)
+                idle = false
+            }
+            
+            // 2. Read from Server -> Write to Device
+            if (selector?.selectNow() ?: 0 > 0) {
                 val keys = selector?.selectedKeys()
-                
-                if (keys != null && keys.isNotEmpty()) {
-                    for (key in keys) {
-                        if (key.isReadable) {
-                            networkToDevice.clear()
-                            val received = tunnelChannel?.read(networkToDevice) ?: 0
-                            
-                            if (received > 0) {
-                                networkToDevice.flip()
-                                
-                                // Write packet to VPN interface (back to device)
-                                vpnOutput.channel.write(networkToDevice)
-                            }
+                val iterator = keys?.iterator()
+                while (iterator?.hasNext() == true) {
+                    val key = iterator.next()
+                    iterator.remove()
+                    if (key.isReadable) {
+                        networkToDevice.clear()
+                        val readFromServer = tunnelChannel?.read(networkToDevice) ?: 0
+                        if (readFromServer > 0) {
+                            networkToDevice.flip()
+                            vpnOutput.write(networkToDevice)
+                            idle = false
                         }
                     }
-                    keys.clear()
                 }
-                
-                // Small sleep to prevent busy waiting
-                Thread.sleep(1)
             }
-        } catch (e: InterruptedException) {
-            Log.i(TAG, "Tunnel interrupted")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in tunnel loop", e)
-        } finally {
-            try {
-                vpnInput.close()
-                vpnOutput.close()
-            } catch (e: Exception) {
-                Log.e(TAG, "Error closing streams", e)
+            
+            if (idle) {
+                Thread.sleep(10) // Reduced CPU usage when idle
             }
         }
     }
